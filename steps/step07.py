@@ -1,3 +1,13 @@
+"""
+逆誤差伝播法の自動化
+
+逆伝播を自動化するに当たり、変数と関数の関係性について
+関数から変数はどのように見えるかという点について考える。
+関数から見ると変数は入力と出力として存在する。
+逆に変数からは見ると、変数は関数から生み出されると考える。
+そこで、変数からみた関数はcreatorとして扱う。
+"""
+
 import jax.numpy as jnp
 
 class Variable:
@@ -5,16 +15,22 @@ class Variable:
     def __init__(self, data):
         self.data = data
         self.grad = None
+        # creatorというインスタンス変数を追加
         self.creator = None
 
+    # creatorを設定するためのメソッド
     def set_creator(self, func):
         self.creator = func
 
     def backward(self):
+        # 関数を取得
         f = self.creator
         if f is not None:
+            # 関数の入力を取得
             x = f.input
+            # 関数のbackwardメソッドを呼ぶ
             x.grad = f.backward(self.grad)
+            # 自分より1つ前の変数のbackwardメソッドを呼ぶ(再帰)
             x.backward()
 
 class Function:
@@ -23,8 +39,10 @@ class Function:
         x = input.data
         y = self.forward(x)
         output = Variable(y)
+        # 出力変数に生みの親を覚えさせる
         output.set_creator(self)
         self.input = input
+        # 出力も覚える
         self.output = output
         return output
 
