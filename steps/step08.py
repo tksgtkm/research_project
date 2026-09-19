@@ -1,3 +1,7 @@
+"""
+再帰からループへ
+"""
+
 import jax.numpy as jnp
 
 class Variable:
@@ -11,11 +15,22 @@ class Variable:
         self.creator = func
 
     def backward(self):
-        f = self.creator
-        if f is not None:
-            x = f.input
-            x.grad = f.backward(self.grad)
-            x.backward()
+        """
+        backwardメソッドの中でbackwardメソッドが呼ばれ、その呼ばれた先のbackwardメソッドでまた
+        backwardメソッドが呼ばれ・・・という処理が続く。
+        これは関数self.creatorがNoneになるまで続く
+        """
+        funcs = [self.creator]
+        while funcs:
+            # 関数を取得
+            f = funcs.pop()
+            # 関数の入出力を取得
+            x, y = f.input, f.output
+            x.grad = f.backward(y.grad)
+
+            if x.creator is not None:
+                # 1つ前の関数をリストに追加
+                funcs.append(x.creator)
 
 class Function:
 
