@@ -18,4 +18,7 @@ else:
     from liouville.core import setup_variable
     from liouville.core import Config
 
+    import liouville.functions
+    import liouville.utils
+
 setup_variable()
