@@ -4,6 +4,7 @@ class Variable:
 
     def __init__(self, data):
         self.data = data
+        # 微分した値を持つ
         self.grad = None
 
 class Function:

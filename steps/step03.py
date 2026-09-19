@@ -21,11 +21,14 @@ class Square(Function):
     def forward(self, x):
         return x ** 2
 
+# Exp関数の実装
 class Exp(Function):
 
     def forward(self, x):
         return jnp.exp(x)
 
+# Functionクラスの__call__メソッドの入力と出力はともにVariableインスタンス
+# そのため関数を連続して使用することもできる
 A = Square()
 B = Exp()
 C = Square()
