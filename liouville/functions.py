@@ -158,6 +158,30 @@ class MatMul(Function):
 def matmul(x, W):
     return MatMul()(x, W)
 
+class Linear(Function):
+
+    def forward(self, x, W, b):
+        y = x.dot(W)
+        if b is not None:
+            y += b
+        return y
+
+    def backward(self, gy):
+        x, W, b = self.inputs
+        gb = None if b.data is None else sum_to(gy, b.shape)
+        gx = matmul(gy, W.T)
+        gW = matmul(x.T, gy)
+        return gx, gW, gb
+
+def linear(x, W, b=None):
+    t = matmul(x, W)
+    if b is None:
+        return t
+
+    y = t + b
+    t.data = None
+    return y
+
 class MeanSquaredError(Function):
 
     def forward(self, x0, x1):
@@ -174,3 +198,17 @@ class MeanSquaredError(Function):
 
 def mean_squared_error(x0, x1):
     return MeanSquaredError()(x0, x1)
+
+class Sigmoid(Function):
+
+    def forward(self, x):
+        y = jnp.tanh(x * 0.5) * 0.5 + 0.5
+        return y
+
+    def backward(self, gy):
+        y = self.outputs[0]()
+        gx = gy * y * (1 - y)
+        return gx
+
+def sigmoid(x):
+    return Sigmoid()(x)

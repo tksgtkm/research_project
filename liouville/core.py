@@ -122,6 +122,10 @@ class Variable:
     def sum(self, axis=None, keepdims=False):
         return liouville.functions.sum(self, axis, keepdims)
 
+# Variableクラスと同じ機能をもたせる
+class Parameter(Variable):
+    pass
+
 def as_variable(obj):
     if isinstance(obj, Variable):
         return obj
