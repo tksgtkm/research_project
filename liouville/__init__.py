@@ -20,8 +20,14 @@ else:
     from liouville.core import Config
     from liouville.layers import Layer
     from liouville.models import Model
+    from liouville.datasets import Dataset
+    from liouville.dataloaders import DataLoader
 
+    import liouville.datasets
+    import liouville.dataloaders
+    import liouville.optimizers
     import liouville.functions
+    import liouville.layers
     import liouville.utils
 
 setup_variable()
