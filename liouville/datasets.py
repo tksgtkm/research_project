@@ -94,14 +94,19 @@ class MNIST(Dataset):
         data = data.reshape(-1, 1, 28, 28)
         return data
 
+    def arrays(self):
+        x = self.data.reshape(len(self.data), -1).astype(jnp.float32) / 255.0
+        t = self.label.astype(jnp.int32)
+        return x, t
+
     def show(self, row=10, col=10):
         H, W = 28, 28
-        img = jnp.zeros((H * row, W * col))
+        data = np.asarray(self.data)          # 表示用なのでNumPyに移す
+        img = np.zeros((H * row, W * col))
         for r in range(row):
             for c in range(col):
-                img[r * H:(r + 1) * H, c * W:(c + 1) * W] = self.data[
-                    np.random.randint(0, len(self.data) - 1)
-                ].reshape(H, W)
+                idx = np.random.randint(0, len(data))
+                img[r * H:(r + 1) * H, c * W:(c + 1) * W] = data[idx].reshape(H, W)
         plt.imshow(img, cmap='gray', interpolation='nearest')
         plt.axis('off')
         plt.show()
