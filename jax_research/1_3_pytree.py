@@ -105,3 +105,86 @@ flattened, _ = jax.tree_util.tree_flatten_with_path(tree)
 
 for key_path, value in flattened:
     print(f'Value of tree {jax.tree_util.keystr(key_path)}: {value}')
+
+# カスタムpytreeノード
+
+# pytreeレジストリに登録されていない型はすべてリーフとして扱われる
+class Special:
+
+    def __init__(self, name, x, y):
+        self.name = name
+        self.x = x
+        self.y = y
+
+print(jax.tree.leaves([Special('a', 0, 1), Special('b', 2, 4)]))
+
+# 独自のクラスをregister_pytree_node関数に登録し、インスタンスをフラット化する。
+from jax.tree_util import register_pytree_node
+
+class RegisteredSpecial(Special):
+
+    def __repr__(self):
+        return f"RegisteredSpecial({self.name!r}, x={self.x}, y={self.y})"
+
+def special_flatten(v):
+    children = (v.x, v.y)
+    aux_data = v.name
+    return children, aux_data
+
+def special_unflatten(aux_data, children):
+    return RegisteredSpecial(aux_data, *children)
+
+print(register_pytree_node(RegisteredSpecial, special_flatten, special_unflatten))
+
+print(jax.tree.map(lambda x: x + 1, [RegisteredSpecial('a', 0, 1), RegisteredSpecial('b', 2, 4)]))
+
+from jax.tree_util import register_pytree_node_class
+
+@register_pytree_node_class
+class RegisteredSpecial2(Special):
+
+    def __repr__(self):
+        return f"RegisteredSpecial2({self.name!r}, x={self.x}, y={self.y})"
+
+    def tree_flatten(self):
+        children = (self.x, self.y)
+        aux_data = self.name
+        return (children, aux_data)
+
+    @classmethod
+    def tree_unflatten(cls, aux_data, children):
+        return cls(aux_data, *children)
+
+print(jax.tree.map(lambda x: x + 1, [RegisteredSpecial2('a', 0, 1), RegisteredSpecial2('b', 2, 4)]))
+
+from typing import NamedTuple, Any
+
+class MyOtherContainer(NamedTuple):
+    name: str
+    a: any
+    b: any
+
+print(jax.tree.leaves([
+    MyOtherContainer('Alice', 1, 2),
+    MyOtherContainer('Bob', 3, 4)
+]))
+
+# データクラスの登録
+from dataclasses import dataclass
+import functools
+
+@functools.partial(
+    jax.tree_util.register_dataclass,
+    data_fields=['a', 'b'],
+    meta_fields=['name']
+)
+@dataclass
+class MyDataclassContainer:
+    name: str
+    a: Any
+    b: Any
+
+print(jax.tree.leaves([
+    MyDataclassContainer('apple', 5.3, 4.7),
+    MyDataclassContainer('banana', jnp.zeros(4), -1.0)
+]))
