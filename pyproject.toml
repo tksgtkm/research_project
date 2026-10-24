@@ -8,10 +8,14 @@ authors = [
 ]
 requires-python = ">=3.11"
 dependencies = [
-    "jax[cuda12]>=0.10.2",
     "jupyterlab>=4.6.4",
     "matplotlib>=3.11.2",
+    "plotly>=7.1.0",
 ]
+
+[project.optional-dependencies]
+cpu = ["jax"]
+gpu = ["jax[cuda12]"]
 
 [project.scripts]
 research-project = "research_project:main"
@@ -24,3 +28,7 @@ build-backend = "uv_build"
 dev = [
     "ipykernel>=7.3.0",
 ]
+
+[tool.uv]
+package = false
+conflicts = [[{ extra = "cpu" }, { extra = "gpu" }]]
