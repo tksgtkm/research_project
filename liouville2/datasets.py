@@ -4,8 +4,8 @@ import numpy as np
 import jax
 import jax.numpy as jnp
 
-from liouville.utils import get_file
-from liouville.transforms import Compose, Flatten, ToFloat, Normalize
+from liouville2.utils import get_file
+from liouville2.transforms import Compose, Flatten, ToFloat, Normalize
 
 __all__ = ["Dataset", "Spiral", "MNIST", "get_spiral"]
 
