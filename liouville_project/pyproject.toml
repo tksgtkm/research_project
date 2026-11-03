@@ -1,0 +1,34 @@
+[project]
+name = "research-project"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "tksgtkm", email = "h9cd342fd7jgx36@gmail.com" }
+]
+requires-python = ">=3.11"
+dependencies = [
+    "jupyterlab>=4.6.4",
+    "matplotlib>=3.11.2",
+    "plotly>=7.1.0",
+]
+
+[project.optional-dependencies]
+cpu = ["jax"]
+gpu = ["jax[cuda12]"]
+
+[project.scripts]
+research-project = "research_project:main"
+
+[build-system]
+requires = ["uv_build>=0.12.19,<0.13.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "ipykernel>=7.3.0",
+]
+
+[tool.uv]
+package = false
+conflicts = [[{ extra = "cpu" }, { extra = "gpu" }]]
